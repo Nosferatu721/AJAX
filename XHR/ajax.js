@@ -1,17 +1,45 @@
+// XHR
+const $xhr = document.getElementById("xhr"),
+  $fragment = document.createDocumentFragment();
 (() => {
-  const xhr = new XMLHttpRequest(),
-    $xhr = document.getElementById("xhr"),
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.addEventListener("readystatechange", (e) => {
+      if (xhr.readyState !== 4) return;
+
+      xhr.status >= 200 && xhr.status < 300
+        ? resolve(JSON.parse(xhr.responseText))
+        : reject(xhr);
+    });
+
+    xhr.open("GET", "https://jsonplaceholder.typicode.com/users");
+
+    xhr.send();
+  });
+})()
+  .then((json) => {
+    json.forEach((it) => {
+      const $li = document.createElement("li");
+      $li.innerHTML = `${it.name} -- ${it.email}`;
+      $fragment.appendChild($li);
+    });
+    $xhr.appendChild($fragment);
+  })
+  .catch((err) => console.log(err));
+
+// FETCH
+
+(() => {
+  const $fetch = document.getElementById("fetch"),
     $fragment = document.createDocumentFragment();
 
-  xhr.addEventListener("readystatechange", (e) => {
-    if (xhr.readyState !== 4) return;
-
-    if (xhr.status >= 200 && xhr.status < 300) {
-      //console.log("Exito");
-      //console.log(xhr.responseText)
-      let json = JSON.parse(xhr.responseText);
-      console.log(json);
-
+  fetch("https://jsonplaceholder.typicode.com/users", { method: "GET" })
+    .then((response) =>
+      response.ok ? response.json() : Promise.reject(response)
+    )
+    .then((json) => {
+      //console.log(json);
       json.forEach((it) => {
         const $li = document.createElement("li");
         $li.innerHTML = `${it.name} -- ${it.email}`;
@@ -19,15 +47,11 @@
         $fragment.appendChild($li);
       });
 
-      $xhr.appendChild($fragment);
-    } else {
-      console.log(xhr);
-      let messageError = xhr.statusText || "Ocurrio un Error";
-      $xhr.innerHTML = `Error ${messageError}.`;
-    }
-  });
-
-  xhr.open("GET", "https://jsonplaceholder.typicode.com/users");
-
-  xhr.send();
+      $fetch.appendChild($fragment);
+    })
+    .catch((err) => {
+      console.log(err);
+      let message = err.statusText || "Ocurrio un Error";
+      $fetch.innerHTML = `Error ${err.status}: ${message}`;
+    });
 })();
