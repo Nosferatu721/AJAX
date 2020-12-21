@@ -50,8 +50,39 @@ const $xhr = document.getElementById("xhr"),
       $fetch.appendChild($fragment);
     })
     .catch((err) => {
-      console.log(err);
+      //console.log(err);
       let message = err.statusText || "Ocurrio un Error";
       $fetch.innerHTML = `Error ${err.status}: ${message}`;
     });
+})();
+
+// FETCH + Async
+
+(() => {
+  const $fetchAsync = document.getElementById("fetchAsync"),
+    $fragment = document.createDocumentFragment();
+
+  const getData = async () => {
+    try {
+      let res = await fetch("https://jsonplaceholder.typicode.com/users"),
+        json = await res.json();
+
+      //console.log(res, json);
+      if (!res.ok) throw { status: res.status, statusTect: res.statusText };
+
+      json.forEach((element) => {
+        const $li = document.createElement("li");
+        $li.innerHTML = `${element.name} -- ${element.email}`;
+        $fragment.appendChild($li);
+      });
+
+      $fetchAsync.appendChild($fragment);
+    } catch (err) {
+      //console.log(err);
+      let message = err.statusText || "Ocurrio un Error";
+      $fetchAsync.innerHTML = `Error ${err.status}: ${message}`;
+    }
+  };
+
+  getData();
 })();
